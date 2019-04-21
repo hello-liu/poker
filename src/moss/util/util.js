@@ -24,3 +24,23 @@ exports.toString = obj => {
 exports.getPool = () => {
     return pool
 }
+//删除数组的节点，返回新数组
+const arrayDel = function(arr,n){　
+    if(n<0){
+        return arr;
+    }else{
+    　　return arr.slice(0,n).concat(arr.slice(n+1,arr.length));
+    }
+}
+exports.arrayDel = arrayDel
+
+//删除数组的节点们，返回新数组
+const arrayDels = (arr,arrDel) =>{　
+    var result = arr
+    for(var i = 0 ; i < result.length; i++){
+        var index = result.indexOf(arrDel[i])
+        result = arrayDel(result,index)
+    }
+    return result
+}
+exports.arrayDels = arrayDels

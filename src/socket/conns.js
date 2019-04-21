@@ -12,11 +12,15 @@ exports.deal = function (ws,req) {
 
     //收到消息事件
     ws.on('message', function incoming(message) {
-        game.message(message,ws.id)
+        try{
+            game.message(message,ws.id)
+        }catch(e){
+            console.log(e.stack)
+        }
     });
     //关闭连接事件
     ws.on('close', function () {
-        game.message('{"method":"close","id":"'+this.id+'"}')
+        game.message('{"method":"close"}',this.id)
         conns.delete(this.id)
         util.info('close:'+this.id)
     });
