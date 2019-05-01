@@ -22,7 +22,7 @@ function Game_1v1(table) {
     }
     //扑克牌
     var poker = [102,103,104,105,106,107,108,109,110,111,112,113,114,
-        202,303,304,205,206,207,208,209,210,211,212,213,214,
+        202,203,204,205,206,207,208,209,210,211,212,213,214,
         302,303,304,305,306,307,308,309,310,311,312,313,314,
         402,403,404,405,406,407,408,409,410,411,412,413,414];
 
@@ -52,6 +52,9 @@ function Game_1v1(table) {
         var player_down = table.player_down
         player_up.pokers = poker.splice(0,pokerCount)
         player_down.pokers = poker.splice(pokerCount,pokerCount)
+
+        player_up.pokers = player_up.pokers.sort()
+        player_down.pokers = player_down.pokers.sort()
 
         //将状态设置为叫分
         table.statu = 'call'
@@ -167,6 +170,7 @@ function Game_1v1(table) {
             //删除扣牌玩家的扣牌
             var player = table["player_"+sit]
             player.pokers = util.arrayDels(player.pokers, holding)
+            player.pokers = player.pokers.sort()
             //设置当前状态为出牌
             table.statu = 'play'
         }else{
@@ -176,7 +180,7 @@ function Game_1v1(table) {
         //将信息发给玩家
         conns.sendMsgAllTable(table)
     }
-    //出牌 {"method":"holding","roomId":1,"sit":"up","playerId":1,"play":111}
+    //出牌 {"method":"play","roomId":1,"sit":"up","playerId":1,"play":111}
     this.chupai = function(msg){
         var sit = msg.sit
         var play = msg.play

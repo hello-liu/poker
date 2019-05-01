@@ -20,14 +20,17 @@ exports.deal = function (ws,req) {
     });
     //关闭连接事件
     ws.on('close', function () {
-        game.message('{"method":"close"}',this.id)
         conns.delete(this.id)
+        game.message('{"method":"close"}',this.id)
         util.info('close:'+this.id)
     });
 }
 
 send = function (id,message) {
-    conns.get(id).send(message)
+    ws = conns.get(id)
+    if(ws.readyState == 1){
+        ws.send(message)
+    }
 }
 
 //给某个人发消息
@@ -35,8 +38,24 @@ var sendMsg = function (id,msg){
     send(id,msg);
 }
 
-//给本桌的人发消息
-var sendMsgAll = function (table,msg){
+//给所有人发消息，发到大厅
+var sendMsgAll = function (players, msg){
+    for(value of conns){
+        var wsId = value[0]
+        if(players.get(wsId)){
+            //在座位上的玩家不发大厅消息
+        }else{
+            //大厅的人发消息
+            ws = value[1]
+            if(ws.readyState == 1){
+                ws.send(msg)
+            }
+        }
+    }
+}
+
+//给本桌的人发消息，发到游戏桌面
+var sendMsgTable = function (table,msg){
     var player_up = table.player_up
     var player_down = table.player_down
     var player_left = table.player_left
@@ -55,17 +74,10 @@ var sendMsgAll = function (table,msg){
     }
 }
 
-
 //发送本桌内容给本桌的人
 var sendMsgAllTable = function (table){
-    sendMsgAll( table, JSON.stringify(table,function(key, val){
-        //过滤game属性，防止循环序列化
-        if(key == 'game'){
-            return null;
-        }else{
-            return val;
-        }
-    }));
+    console.log(table)
+    sendMsgTable( table, util.fmt_table(table) );
 }
 
 exports.sendMsgAllTable = sendMsgAllTable

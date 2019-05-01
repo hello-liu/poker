@@ -1,6 +1,7 @@
 var conns = require('./conns')
 var {Game_1v1} = require('./way/game_1v1')
 var {Game_2v2} = require('./way/game_2v2')
+var util = require('../moss/util/util')
 
 //桌子
 var tables = new Map();
@@ -57,6 +58,20 @@ exports.message = function (msg, wsId ) {
             break; 
         case 'iam':
             //我是
+            var name = msgJson.name
+            util.info("conn : "+name)
+
+            break;
+        case 'tables':
+            //获取桌子的信息
+            var name = msgJson.name
+            conns.sendMsg(wsId, util.fmt_tables(tables) );
+            break;
+        case 'table':
+            //获取本桌子的信息
+            var roomId = msgJson.roomId
+            var table = tables.get(roomId);
+            conns.sendMsg(wsId,util.fmt_table(table));
             break;
         case 'chat':
             //聊天
@@ -119,7 +134,7 @@ function in1(msg,wsId){
     }else{
         //房间不存
         //创建房间
-        table = {id:roomId,type:type}
+        table = {id:roomId,type:type,table:"table"}
         //创建用户
         var player = {id:playerId,name:playerName,statu:'noReay',wsId:wsId}
         table["player_"+sit] = player
@@ -132,6 +147,10 @@ function in1(msg,wsId){
     players.set(wsId,{roomId:roomId,sit:sit,playerId:playerId})
     //发送本房间状态给所有人
     conns.sendMsgAllTable(table)
+
+    //发送大厅状态给所有人
+    conns.sendMsgAll(players, util.fmt_tables(tables ) )
+
 }
 
 //退出房间
@@ -146,7 +165,7 @@ function out1(msg,wsId){
     var player = table["player_"+sit]
 
     //是否是这个座位的这个人
-    if(player.id == playerId){
+    if(player && player.id == playerId){
         //游戏中退出房间，则输
         if(table.statu == 'call' || table.statu == 'major' || table.statu == 'holding'  || table.statu == 'play'){
             table.game.qiangtui(msg)
@@ -160,6 +179,9 @@ function out1(msg,wsId){
     
     //发送本房间状态给所有人
     conns.sendMsgAllTable(table)
+
+    //发送大厅状态给所有人
+    conns.sendMsgAll(players, util.fmt_tables(tables ))
 }
 
 //准备

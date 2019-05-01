@@ -44,3 +44,23 @@ const arrayDels = (arr,arrDel) =>{　
     return result
 }
 exports.arrayDels = arrayDels
+
+var fmt_table = function fmt_table(table ){
+    return JSON.stringify(table, function(key, val){
+        //过滤game属性，防止循环序列化
+        if(key == 'game'){
+            return null;
+        }else{
+            return val;
+        }
+    } )
+}
+exports.fmt_table = fmt_table
+
+exports.fmt_tables = function fmt_tables(tables ){
+    var tables_ = []
+    for(var values of tables){
+        tables_.push(values[1])
+    }
+    return fmt_table({tables:tables_})
+}
